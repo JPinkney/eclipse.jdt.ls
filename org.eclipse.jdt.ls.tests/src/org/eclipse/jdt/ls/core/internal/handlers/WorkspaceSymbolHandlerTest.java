@@ -11,6 +11,7 @@
 package org.eclipse.jdt.ls.core.internal.handlers;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -78,11 +79,13 @@ public class WorkspaceSymbolHandlerTest extends AbstractProjectsManagerBasedTest
 		List<SymbolInformation> results = handler.search(query, monitor);
 		assertNotNull(results);
 		assertEquals("Unexpected results", 2, results.size());
+		Range defaultRange = JDTUtils.newRange();
 		for (SymbolInformation symbol : results) {
 			assertNotNull("Kind is missing", symbol.getKind());
 			assertNotNull("ContainerName is missing", symbol.getContainerName());
 			assertTrue(symbol.getName().startsWith(query));
 			Location location = symbol.getLocation();
+			assertNotEquals("Range should not equal the default range", defaultRange, location.getRange());
 			assertTrue("Unexpected uri " + location.getUri(), location.getUri().startsWith("file://"));
 		}
 	}
@@ -98,6 +101,7 @@ public class WorkspaceSymbolHandlerTest extends AbstractProjectsManagerBasedTest
 		assertEquals("java", symbol.getContainerName());
 		assertEquals(query, symbol.getName());
 		Location location = symbol.getLocation();
+		assertNotEquals("Range should not equal the default range", JDTUtils.newRange(), location.getRange());
 		assertTrue("Unexpected uri "+ location.getUri(), location.getUri().endsWith("Foo.java"));
 	}
 
