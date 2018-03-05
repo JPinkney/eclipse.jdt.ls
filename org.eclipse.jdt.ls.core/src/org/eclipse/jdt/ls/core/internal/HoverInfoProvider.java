@@ -37,7 +37,7 @@ import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.ls.core.internal.hover.JavaElementLabels;
-import org.eclipse.jdt.ls.core.internal.javadoc.JavadocContentAccess;
+import org.eclipse.jdt.ls.core.internal.javadoc.JavadocContentAccess2;
 import org.eclipse.jdt.ls.core.internal.preferences.PreferenceManager;
 import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -186,11 +186,11 @@ public class HoverInfoProvider {
 		} else if (element instanceof IMember) {
 			member= (IMember) element;
 		} else if (element instanceof IPackageFragment) {
-			Reader r = JavadocContentAccess.getMarkdownContentReader((IPackageFragment) element, true);
+			String r = JavadocContentAccess2.getHTMLContent(element, true);
 			if(r == null ) {
 				return null;
 			}
-			return getString(r);
+			return r;
 		} else {
 			return null;
 		}
@@ -200,11 +200,11 @@ public class HoverInfoProvider {
 			return null; // no source attachment found
 		}
 
-		Reader r = JavadocContentAccess.getMarkdownContentReader(member);
+		String r = JavadocContentAccess2.getHTMLContent(element, false);
 		if(r == null ) {
 			return null;
 		}
-		return getString(r);
+		return r;
 	}
 
 	/**
