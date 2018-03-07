@@ -32,8 +32,10 @@ public class JavaDoc2MarkdownConverter extends AbstractJavaDocConverter {
 		options.inlineLinks = true;
 		options.autoLinks = true;
 		options.reverseHtmlSmartPunctuation = true;
+		options.preserveRelativeLinks = true;
 		remark = new Remark(options);
 	}
+
 	public JavaDoc2MarkdownConverter(Reader reader) {
 		super(reader);
 	}

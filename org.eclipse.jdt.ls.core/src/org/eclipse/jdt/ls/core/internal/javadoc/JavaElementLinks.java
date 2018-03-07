@@ -192,9 +192,6 @@ public class JavaElementLinks {
 	//		}
 	//	}
 
-	public static final String OPEN_LINK_SCHEME = "eclipse-open"; //$NON-NLS-1$
-	public static final String JAVADOC_SCHEME = "eclipse-javadoc"; //$NON-NLS-1$
-	public static final String JAVADOC_VIEW_SCHEME = "eclipse-javadoc-view"; //$NON-NLS-1$
 	private static final char LINK_BRACKET_REPLACEMENT = '\u2603';
 
 	/**
@@ -226,7 +223,7 @@ public class JavaElementLinks {
 	 *             if the arguments were invalid
 	 */
 	public static String createURI(String scheme, IJavaElement element) throws URISyntaxException {
-		return createURI(scheme, element, null, null, null);
+		return createURI(scheme, element, null, null, null, -1);
 	}
 
 	/**
@@ -251,7 +248,7 @@ public class JavaElementLinks {
 	 * @throws URISyntaxException
 	 *             if the arguments were invalid
 	 */
-	public static String createURI(String scheme, IJavaElement element, String refTypeName, String refMemberName, String[] refParameterTypes) throws URISyntaxException {
+	public static String createURI(String scheme, IJavaElement element, String refTypeName, String refMemberName, String[] refParameterTypes, int startPosition) throws URISyntaxException {
 		/*
 		 * We use an opaque URI, not ssp and fragments (to work around Safari bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=212527 (wrongly encodes #)).
 		 */
@@ -260,7 +257,7 @@ public class JavaElementLinks {
 		ssp.append(LINK_SEPARATOR); // make sure first character is not a / (would be hierarchical URI)
 
 		// replace '[' manually, since URI confuses it for an IPv6 address as per RFC 2732:
-		ssp.append(element.getHandleIdentifier().replace('[', LINK_BRACKET_REPLACEMENT)); // segments[1]
+		ssp.append(element.getPath().toString().replace('[', LINK_BRACKET_REPLACEMENT)); // segments[1]
 
 		if (refTypeName != null) {
 			ssp.append(LINK_SEPARATOR);
@@ -281,6 +278,11 @@ public class JavaElementLinks {
 				}
 			}
 		}
+
+		if (startPosition != -1) {
+			ssp.append("#" + startPosition);
+		}
+
 		return new URI(scheme, ssp.toString(), null).toASCIIString();
 	}
 

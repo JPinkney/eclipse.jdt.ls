@@ -131,7 +131,8 @@ public class JavadocContentAccess2 {
 	private static final String JavadocContentAccess2_setproperty_message = "<p>Sets the value ofthe property {0}.</p><dl><dt>Property Description:</dt><dd>{1}</dd></dl>";
 
 	/**
-	 * Implements the "Algorithm for Inheriting Method Comments" as specified for <a href=
+	 * Implements the "Algorithm for Inheriting Method Comments" as specified for
+	 * <a href=
 	 * "http://download.oracle.com/javase/1.4.2/docs/tooldocs/solaris/javadoc.html#inheritingcomments"
 	 * >1.4.2</a>, <a href=
 	 * "http://download.oracle.com/javase/1.5.0/docs/tooldocs/windows/javadoc.html#inheritingcomments"
@@ -140,8 +141,10 @@ public class JavadocContentAccess2 {
 	 * >1.6</a>.
 	 *
 	 * <p>
-	 * Unfortunately, the implementation is broken in Javadoc implementations since 1.5, see <a
-	 * href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6376959">Sun's bug</a>.
+	 * Unfortunately, the implementation is broken in Javadoc implementations since
+	 * 1.5, see
+	 * <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6376959">Sun's
+	 * bug</a>.
 	 * </p>
 	 *
 	 * <p>
@@ -221,13 +224,18 @@ public class JavadocContentAccess2 {
 		}
 
 		/**
-		 * Visits the super interfaces of the given type in the given hierarchy, thereby skipping already visited types.
+		 * Visits the super interfaces of the given type in the given hierarchy, thereby
+		 * skipping already visited types.
 		 *
-		 * @param visited set of visited types
-		 * @param currentType type whose super interfaces should be visited
-		 * @param typeHierarchy type hierarchy (must include <code>currentType</code>)
+		 * @param visited
+		 *            set of visited types
+		 * @param currentType
+		 *            type whose super interfaces should be visited
+		 * @param typeHierarchy
+		 *            type hierarchy (must include <code>currentType</code>)
 		 * @return the result, or {@link #CONTINUE} if no result has been found
-		 * @throws JavaModelException unexpected problem
+		 * @throws JavaModelException
+		 *             unexpected problem
 		 */
 		private Object visitInheritDocInterfaces(ArrayList<IType> visited, IType currentType, ITypeHierarchy typeHierarchy) throws JavaModelException {
 			ArrayList<IType> toVisitChildren= new ArrayList<>();
@@ -282,9 +290,11 @@ public class JavadocContentAccess2 {
 			/**
 			 * Returns a Javadoc tag description or <code>null</code>.
 			 *
-			 * @param contentAccess the content access
+			 * @param contentAccess
+			 *            the content access
 			 * @return the description, or <code>null</code> if none
-			 * @throws JavaModelException unexpected problem
+			 * @throws JavaModelException
+			 *             unexpected problem
 			 */
 			CharSequence getDescription(JavadocContentAccess2 contentAccess) throws JavaModelException;
 		}
@@ -606,30 +616,30 @@ public class JavadocContentAccess2 {
 			return null;
 		}
 
-		StringBuffer buf= new StringBuffer();
-		buf.append("<div>"); //$NON-NLS-1$
-		if (hasSuperInterfaceMethods) {
-			buf.append("<b>"); //$NON-NLS-1$
-			buf.append(JavaDoc2HTMLTextReader_specified_by_section);
-			buf.append("</b> "); //$NON-NLS-1$
-			for (Iterator<IMethod> iter= superInterfaceMethods.iterator(); iter.hasNext(); ) {
-				IMethod overridden= iter.next();
-				buf.append(createMethodInTypeLinks(overridden));
-				if (iter.hasNext()) {
-					buf.append(JavaElementLabels.COMMA_STRING);
-				}
-			}
-		}
-		if (superClassMethod[0] != null) {
-			if (hasSuperInterfaceMethods) {
-				buf.append(JavaElementLabels.COMMA_STRING);
-			}
-			buf.append("<b>"); //$NON-NLS-1$
-			buf.append(JavaDoc2HTMLTextReader_overrides_section);
-			buf.append("</b> "); //$NON-NLS-1$
-			buf.append(createMethodInTypeLinks(superClassMethod[0]));
-		}
-		buf.append("</div>"); //$NON-NLS-1$
+		StringBuffer buf = new StringBuffer();
+		//		buf.append("<div>"); //$NON-NLS-1$
+		//		if (hasSuperInterfaceMethods) {
+		//			buf.append("<b>"); //$NON-NLS-1$
+		//			buf.append(JavaDoc2HTMLTextReader_specified_by_section);
+		//			buf.append("</b> "); //$NON-NLS-1$
+		//			for (Iterator<IMethod> iter = superInterfaceMethods.iterator(); iter.hasNext();) {
+		//				IMethod overridden = iter.next();
+		//				buf.append(createMethodInTypeLinks(overridden));
+		//				if (iter.hasNext()) {
+		//					buf.append(JavaElementLabels.COMMA_STRING);
+		//				}
+		//			}
+		//		}
+		//		if (superClassMethod[0] != null) {
+		//			if (hasSuperInterfaceMethods) {
+		//				buf.append(JavaElementLabels.COMMA_STRING);
+		//			}
+		//			buf.append("<b>"); //$NON-NLS-1$
+		//			buf.append(JavaDoc2HTMLTextReader_overrides_section);
+		//			buf.append("</b> "); //$NON-NLS-1$
+		//			buf.append(createMethodInTypeLinks(superClassMethod[0]));
+		//		}
+		//		buf.append("</div>"); //$NON-NLS-1$
 		return buf;
 	}
 
@@ -644,7 +654,7 @@ public class JavadocContentAccess2 {
 		StringBuffer buf= new StringBuffer();
 		buf.append("<a href='"); //$NON-NLS-1$
 		try {
-			String uri= JavaElementLinks.createURI(JavaElementLinks.JAVADOC_SCHEME, member);
+			String uri = JavaElementLinks.createURI(null, member);
 			buf.append(uri);
 		} catch (URISyntaxException e) {
 
@@ -831,7 +841,7 @@ public class JavadocContentAccess2 {
 		char[] buffer= new char[1024];
 		int count;
 		try {
-			while ((count= reader.read(buffer)) != -1) {
+			while ((count = reader.read(buffer)) != -1) {
 				buf.append(buffer, 0, count);
 			}
 		} catch (IOException e) {
@@ -1004,7 +1014,7 @@ public class JavadocContentAccess2 {
 
 			} else if (TagElement.TAG_RETURN.equals(tagName)) {
 				if (returnTag == null)
-				 {
+				{
 					returnTag= tag; // the Javadoc tool only shows the first return tag
 				}
 
@@ -1032,7 +1042,7 @@ public class JavadocContentAccess2 {
 				sees.add(tag);
 			} else if (TagElement.TAG_DEPRECATED.equals(tagName)) {
 				if (deprecatedTag == null)
-				 {
+				{
 					deprecatedTag= tag; // the Javadoc tool only shows the first deprecated tag
 				}
 			} else {
@@ -1072,9 +1082,7 @@ public class JavadocContentAccess2 {
 		boolean hasExceptions= exceptions.size() > 0 || hasInheritedExceptions;
 
 		if (hasParameters || hasTypeParameters || hasReturnTag || hasExceptions
-			|| versions.size() > 0 || authors.size() > 0 || since.size() > 0 || sees.size() > 0 || rest.size() > 0
-			|| (fBuf.length() > 0 && (parameterDescriptions.length > 0 || exceptionDescriptions.length > 0))
-			) {
+				|| versions.size() > 0 || authors.size() > 0 || since.size() > 0 || sees.size() > 0 || rest.size() > 0 || (fBuf.length() > 0 && (parameterDescriptions.length > 0 || exceptionDescriptions.length > 0))) {
 			handleSuperMethodReferences();
 			fBuf.append(BLOCK_TAG_START);
 			handleParameterTags(typeParameters, typeParameterNames, typeParameterDescriptions, true);
@@ -1401,9 +1409,9 @@ public class JavadocContentAccess2 {
 				if (previousEnd > childStart) {
 					// should never happen, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=304826
 					Exception exception= new Exception("Illegal ASTNode positions: previousEnd=" + previousEnd //$NON-NLS-1$
-						+ ", childStart=" + childStart //$NON-NLS-1$
-						+ ", element=" + fElement.getHandleIdentifier() //$NON-NLS-1$
-						+ ", Javadoc:\n" + fSource); //$NON-NLS-1$
+							+ ", childStart=" + childStart //$NON-NLS-1$
+							+ ", element=" + fElement.getHandleIdentifier() //$NON-NLS-1$
+							+ ", Javadoc:\n" + fSource); //$NON-NLS-1$
 				} else if (previousEnd != childStart) {
 					// Need to preserve whitespace before a node that's not
 					// directly following the previous node (e.g. on a new line)
@@ -1495,8 +1503,8 @@ public class JavadocContentAccess2 {
 		if (isLiteral || isCode) {
 			fLiteralContent++;
 		}
-		if (isLink || isCode)
-		 {
+		if (isCode)
+		{
 			fBuf.append("<code>"); //$NON-NLS-1$
 		}
 
@@ -1515,8 +1523,8 @@ public class JavadocContentAccess2 {
 			fBuf.append(removeDocLineIntros(text));
 		}
 
-		if (isLink || isCode)
-		 {
+		if (isCode)
+		{
 			fBuf.append("</code>"); //$NON-NLS-1$
 		}
 		if (isLiteral || isCode) {
@@ -1665,7 +1673,7 @@ public class JavadocContentAccess2 {
 	 * @return <code>true</code> iff the node was an {&#64;inheritDoc} node and has been handled
 	 */
 	private boolean handleInheritDoc(TagElement node) {
-		if (! TagElement.TAG_INHERITDOC.equals(node.getTagName())) {
+		if (!TagElement.TAG_INHERITDOC.equals(node.getTagName())) {
 			return false;
 		}
 		try {
@@ -1926,14 +1934,17 @@ public class JavadocContentAccess2 {
 			String refMemberName= null;
 			String[] refMethodParamTypes= null;
 			String[] refMethodParamNames= null;
+			int startPosition = -1;
 			if (first instanceof Name) {
 				Name name = (Name) first;
 				refTypeName= name.getFullyQualifiedName();
+				startPosition = name.getStartPosition();
 			} else if (first instanceof MemberRef) {
 				MemberRef memberRef= (MemberRef) first;
 				Name qualifier= memberRef.getQualifier();
 				refTypeName= qualifier == null ? "" : qualifier.getFullyQualifiedName(); //$NON-NLS-1$
 				refMemberName= memberRef.getName().getIdentifier();
+				startPosition = memberRef.getStartPosition();
 			} else if (first instanceof MethodRef) {
 				MethodRef methodRef= (MethodRef) first;
 				Name qualifier= methodRef.getQualifier();
@@ -1951,18 +1962,18 @@ public class JavadocContentAccess2 {
 						refMethodParamNames[i]= paramName.getIdentifier();
 					}
 				}
+				startPosition = methodRef.getStartPosition();
 			}
 
 			if (refTypeName != null) {
-				fBuf.append("<a href='"); //$NON-NLS-1$
+				fBuf.append("<a href=\""); //$NON-NLS-1$
 				try {
-					String scheme= JavaElementLinks.JAVADOC_SCHEME;
-					String uri= JavaElementLinks.createURI(scheme, fElement, refTypeName, refMemberName, refMethodParamTypes);
-					fBuf.append(uri);
+					String uri = JavaElementLinks.createURI(null, fElement, refTypeName, refMemberName, refMethodParamTypes, startPosition);
+					fBuf.append("file://" + uri);
 				} catch (URISyntaxException e) {
 					//JavaPlugin.log(e);
 				}
-				fBuf.append("'>"); //$NON-NLS-1$
+				fBuf.append("\">"); //$NON-NLS-1$
 				if (fs > 1 && !(fs == 2 && isWhitespaceTextElement(fragments.get(1)))) {
 					handleContentElements(fragments.subList(1, fs), true);
 				} else {
@@ -2034,10 +2045,12 @@ public class JavadocContentAccess2 {
 	/**
 	 * Returns the Javadoc for a PackageDeclaration.
 	 *
-	 * @param packageDeclaration the Java element whose Javadoc has to be retrieved
-	 * @return the package documentation in HTML format or <code>null</code> if there is no
-	 *         associated Javadoc
-	 * @throws CoreException if the Java element does not exists or an exception occurs while
+	 * @param packageDeclaration
+	 *            the Java element whose Javadoc has to be retrieved
+	 * @return the package documentation in HTML format or <code>null</code> if
+	 *         there is no associated Javadoc
+	 * @throws CoreException
+	 *             if the Java element does not exists or an exception occurs while
 	 *             accessing the file containing the package Javadoc
 	 * @since 3.9
 	 */
@@ -2051,13 +2064,15 @@ public class JavadocContentAccess2 {
 
 
 	/**
-	 * Returns the Javadoc for a package which could be present in package.html, package-info.java
-	 * or from an attached Javadoc.
+	 * Returns the Javadoc for a package which could be present in package.html,
+	 * package-info.java or from an attached Javadoc.
 	 *
-	 * @param packageFragment the package which is requesting for the document
-	 * @return the document content in HTML format or <code>null</code> if there is no associated
-	 *         Javadoc
-	 * @throws CoreException if the Java element does not exists or an exception occurs while
+	 * @param packageFragment
+	 *            the package which is requesting for the document
+	 * @return the document content in HTML format or <code>null</code> if there is
+	 *         no associated Javadoc
+	 * @throws CoreException
+	 *             if the Java element does not exists or an exception occurs while
 	 *             accessing the file containing the package Javadoc
 	 * @since 3.9
 	 */
@@ -2306,9 +2321,11 @@ public class JavadocContentAccess2 {
 	/**
 	 * Reads the content of the IFile.
 	 *
-	 * @param file the file whose content has to be read
+	 * @param file
+	 *            the file whose content has to be read
 	 * @return the content of the file
-	 * @throws CoreException if the file could not be successfully connected or disconnected
+	 * @throws CoreException
+	 *             if the file could not be successfully connected or disconnected
 	 */
 	private static String getIFileContent(IFile file) throws CoreException {
 		String content= null;
@@ -2331,9 +2348,11 @@ public class JavadocContentAccess2 {
 	/**
 	 * Reads the content of the java.io.File.
 	 *
-	 * @param file the file whose content has to be read
+	 * @param file
+	 *            the file whose content has to be read
 	 * @return the content of the file
-	 * @throws CoreException if the file could not be successfully connected or disconnected
+	 * @throws CoreException
+	 *             if the file could not be successfully connected or disconnected
 	 */
 	private static String getFileContent(File file) throws CoreException {
 		String content= null;
@@ -2357,8 +2376,16 @@ public class JavadocContentAccess2 {
 	 * @param b
 	 * @return
 	 */
-	public static Reader getMarkdownContentReader(IPackageFragment element, boolean b) {
-		// TODO Auto-generated method stub
+	public static Reader getMarkdownContentReader(IJavaElement element, boolean attachedJavaDoc) {
+
+		try {
+			String rawHtml = JavadocContentAccess2.getHTMLContent(element, attachedJavaDoc);
+			Reader markdownReader = new JavaDoc2MarkdownConverter(rawHtml).getAsReader();
+			return markdownReader;
+		} catch (IOException | CoreException e) {
+
+		}
+
 		return null;
 	}
 

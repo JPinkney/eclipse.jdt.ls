@@ -180,17 +180,17 @@ public class HoverInfoProvider {
 
 
 	private String computeJavadocHover(IJavaElement element) throws CoreException {
-		IMember member;
+		IMember member = null;
 		if (element instanceof ITypeParameter) {
 			member= ((ITypeParameter) element).getDeclaringMember();
 		} else if (element instanceof IMember) {
 			member= (IMember) element;
 		} else if (element instanceof IPackageFragment) {
-			String r = JavadocContentAccess2.getHTMLContent(element, true);
-			if(r == null ) {
+			Reader r = JavadocContentAccess2.getMarkdownContentReader(element, true);
+			if (r == null) {
 				return null;
 			}
-			return r;
+			return getString(r);
 		} else {
 			return null;
 		}
@@ -200,11 +200,11 @@ public class HoverInfoProvider {
 			return null; // no source attachment found
 		}
 
-		String r = JavadocContentAccess2.getHTMLContent(element, false);
-		if(r == null ) {
+		Reader r = JavadocContentAccess2.getMarkdownContentReader(member, true);
+		if (r == null) {
 			return null;
 		}
-		return r;
+		return getString(r);
 	}
 
 	/**
