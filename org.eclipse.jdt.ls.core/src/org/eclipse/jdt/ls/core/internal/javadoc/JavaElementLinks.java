@@ -16,6 +16,8 @@ import java.net.URISyntaxException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IAnnotation;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -29,10 +31,10 @@ import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 import org.eclipse.jdt.internal.corext.util.SuperTypeHierarchyCache;
-import org.eclipse.jdt.ls.core.internal.hover.JavaElementLabels;
+import org.eclipse.jdt.ls.core.internal.JDTUtils;
+import org.eclipse.lsp4j.Location;
 
 /**
  * Links inside Javadoc hovers and Javadoc view.
@@ -77,120 +79,6 @@ public class JavaElementLinks {
 		 */
 		void handleTextSet();
 	}
-
-	//	static class JavaElementLinkedLabelComposer extends JavaElementLabelComposer {
-	//		private final IJavaElement fElement;
-	//
-	//		public JavaElementLinkedLabelComposer(IJavaElement member, StringBuffer buf) {
-	//			super(buf);
-	//			if (member instanceof IPackageDeclaration) {
-	//				fElement = member.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
-	//			} else {
-	//				fElement = member;
-	//			}
-	//		}
-	//
-	//		@Override
-	//		public String getElementName(IJavaElement element) {
-	//			if (element instanceof IPackageFragment || element instanceof IPackageDeclaration) {
-	//				return getPackageFragmentElementName(element);
-	//			}
-	//
-	//			String elementName = element.getElementName();
-	//			return getElementName(element, elementName);
-	//		}
-	//
-	//		private String getElementName(IJavaElement element, String elementName) {
-	//			if (element.equals(fElement)) { // linking to the member itself would be a no-op
-	//				return elementName;
-	//			}
-	//			if (elementName.length() == 0) { // anonymous or lambda
-	//				return elementName;
-	//			}
-	//			try {
-	//				String uri = createURI(JAVADOC_SCHEME, element);
-	//				return createHeaderLink(uri, elementName);
-	//			} catch (URISyntaxException e) {
-	//				//JavaPlugin.log(e);
-	//				return elementName;
-	//			}
-	//		}
-	//
-	//		private String getPackageFragmentElementName(IJavaElement javaElement) {
-	//			IPackageFragmentRoot root = (IPackageFragmentRoot) javaElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-	//			String javaElementName = javaElement.getElementName();
-	//			String[] individualSegmentNames = javaElementName.split("\\."); //$NON-NLS-1$
-	//			String packageName = null;
-	//			StringBuffer strBuffer = new StringBuffer();
-	//
-	//			for (int i = 0; i < individualSegmentNames.length; i++) {
-	//				String lastSegmentName = individualSegmentNames[i];
-	//				if (packageName != null) {
-	//					strBuffer.append('.');
-	//					packageName = packageName + '.' + lastSegmentName;
-	//				} else {
-	//					packageName = lastSegmentName;
-	//				}
-	//				IPackageFragment subFragment = root.getPackageFragment(packageName);
-	//				strBuffer.append(getElementName(subFragment, lastSegmentName));
-	//			}
-	//
-	//			return strBuffer.toString();
-	//		}
-	//
-	//		@Override
-	//		protected String getGT() {
-	//			return "&gt;"; //$NON-NLS-1$
-	//		}
-	//
-	//		@Override
-	//		protected String getLT() {
-	//			return "&lt;"; //$NON-NLS-1$
-	//		}
-	//
-	//		@Override
-	//		protected String getSimpleTypeName(IJavaElement enclosingElement, String typeSig) {
-	//			String typeName = super.getSimpleTypeName(enclosingElement, typeSig);
-	//
-	//			String title = ""; //$NON-NLS-1$
-	//			String qualifiedName = Signature.toString(Signature.getTypeErasure(typeSig));
-	//			int qualifierLength = qualifiedName.length() - typeName.length() - 1;
-	//			if (qualifierLength > 0) {
-	//				if (qualifiedName.endsWith(typeName)) {
-	//					title = qualifiedName.substring(0, qualifierLength);
-	//					//title = Messages.format(JavaUIMessages.JavaElementLinks_title, title);
-	//				} else {
-	//					title = qualifiedName; // Not expected. Just show the whole qualifiedName.
-	//				}
-	//			}
-	//
-	//			try {
-	//				String uri = createURI(JAVADOC_SCHEME, enclosingElement, qualifiedName, null, null);
-	//				return createHeaderLink(uri, typeName, title);
-	//			} catch (URISyntaxException e) {
-	//				//JavaPlugin.log(e);
-	//				return typeName;
-	//			}
-	//		}
-	//
-	//		@Override
-	//		protected String getMemberName(IJavaElement enclosingElement, String typeName, String memberName) {
-	//			try {
-	//				String uri = createURI(JAVADOC_SCHEME, enclosingElement, typeName, memberName, null);
-	//				return createHeaderLink(uri, memberName);
-	//			} catch (URISyntaxException e) {
-	//				//JavaPlugin.log(e);
-	//				return memberName;
-	//			}
-	//		}
-	//
-	//		@Override
-	//		protected void appendAnnotationLabels(IAnnotation[] annotations, long flags) throws JavaModelException {
-	//			//fBuffer.append("<span style='font-weight:normal;'>"); //$NON-NLS-1$
-	//			super.appendAnnotationLabels(annotations, flags);
-	//			//fBuffer.append("</span>"); //$NON-NLS-1$
-	//		}
-	//	}
 
 	private static final char LINK_BRACKET_REPLACEMENT = '\u2603';
 
@@ -254,10 +142,10 @@ public class JavaElementLinks {
 		 */
 
 		StringBuffer ssp = new StringBuffer(60);
-		ssp.append(LINK_SEPARATOR); // make sure first character is not a / (would be hierarchical URI)
+		//ssp.append("/"); // make sure first character is not a / (would be hierarchical URI)
 
 		// replace '[' manually, since URI confuses it for an IPv6 address as per RFC 2732:
-		ssp.append(element.getPath().toString().replace('[', LINK_BRACKET_REPLACEMENT)); // segments[1]
+		ssp.append(element.getHandleIdentifier().toString().replace('[', LINK_BRACKET_REPLACEMENT)); // segments[1]
 
 		if (refTypeName != null) {
 			ssp.append(LINK_SEPARATOR);
@@ -279,11 +167,44 @@ public class JavaElementLinks {
 			}
 		}
 
-		if (startPosition != -1) {
-			ssp.append("#" + startPosition);
+		URI uri = new URI("eclipse-javadoc", ssp.toString(), null);
+
+		IJavaElement e = parseURI(uri);
+
+		try {
+			Location loc = JDTUtils.toLocation(e);
+			String urlStart = loc.getUri();
+		} catch (Exception z) {
+
 		}
 
-		return new URI(scheme, ssp.toString(), null).toASCIIString();
+		try {
+			String urlStart = "";
+			ICompilationUnit compilationUnit = (ICompilationUnit) element.getAncestor(IJavaElement.COMPILATION_UNIT);
+			IClassFile cf = (IClassFile) element.getAncestor(IJavaElement.CLASS_FILE);
+			if (compilationUnit != null || (cf != null && cf.getSourceRange() != null)) {
+				Location loc = JDTUtils.toLocation(element);
+
+				urlStart = loc.getUri();
+				//return uriTest;
+
+			}
+			if (element instanceof IMember && ((IMember) element).getClassFile() != null) {
+				Location loc = JDTUtils.toLocation(((IMember) element).getClassFile());
+
+				urlStart = loc.getUri();
+				//return uriTest;
+			}
+			urlStart = urlStart.substring(0, urlStart.indexOf("?="));
+			urlStart = urlStart + "?" + ssp.toString();
+			return urlStart;
+		} catch (Exception z) {
+
+		}
+
+
+
+		return new URI(scheme, ssp.toString(), null).toString();
 	}
 
 	public static IJavaElement parseURI(URI uri) {
@@ -412,77 +333,6 @@ public class JavaElementLinks {
 		IJavaProject javaProject = pack.getJavaProject();
 		return javaProject.findType(refTypeName, (IProgressMonitor) null);
 
-		// This implementation would make sense, but the javadoc tool doesn't support it:
-		//		IClassFile classFile= pack.getClassFile(JavaModelUtil.PACKAGE_INFO_CLASS);
-		//		if (classFile.exists()) {
-		//			return resolveType(classFile.getType(), refTypeName);
-		//		}
-		//
-		//		// check if refTypeName is a qualified name
-		//		int firstDot= refTypeName.indexOf('.');
-		//		if (firstDot != -1) {
-		//			String typeNameRest= refTypeName.substring(firstDot + 1);
-		//			String simpleTypeName= refTypeName.substring(0, firstDot);
-		//			IType simpleType= resolvePackageInfoType(pack, simpleTypeName);
-		//			if (simpleType != null) {
-		//				// a type-qualified name
-		//				return resolveType(simpleType, typeNameRest);
-		//			} else {
-		//				// a fully-qualified name
-		//				return javaProject.findType(refTypeName, (IProgressMonitor) null);
-		//			}
-		//		}
-		//
-		//		ICompilationUnit cu= pack.getCompilationUnit(JavaModelUtil.PACKAGE_INFO_JAVA);
-		//		if (! cu.exists()) {
-		//			// refTypeName is a simple name in the package-info.java from the source attachment. Sorry, we give up here...
-		//			return null;
-		//		}
-		//
-		//		// refTypeName is a simple name in a CU. Let's play the shadowing rules of JLS7 6.4.1:
-		//		// 1) single-type import
-		//		// 2) enclosing package
-		//		// 3) java.lang.* (JLS7 7.3)
-		//		// 4) on-demand import
-		//		IImportDeclaration[] imports= cu.getImports();
-		//		for (int i= 0; i < imports.length; i++) {
-		//			IImportDeclaration importDecl= imports[i];
-		//			String name= importDecl.getElementName();
-		//			if (Flags.isStatic(importDecl.getFlags())) {
-		//				imports[i]= null;
-		//			} else 	if (! importDecl.isOnDemand()) {
-		//				if (name.endsWith('.' + refTypeName)) {
-		//					// 1) single-type import
-		//					IType type= javaProject.findType(name, (IProgressMonitor) null);
-		//					if (type != null)
-		//						return type;
-		//				}
-		//				imports[i]= null;
-		//			}
-		//		}
-		//
-		//		// 2) enclosing package
-		//		IType type= javaProject.findType(pack.getElementName() + '.' + refTypeName, (IProgressMonitor) null);
-		//		if (type != null)
-		//			return type;
-		//
-		//		// 3) java.lang.* (JLS7 7.3)
-		//		type= javaProject.findType("java.lang." + refTypeName, (IProgressMonitor) null); //$NON-NLS-1$
-		//		if (type != null)
-		//			return type;
-		//
-		//		// 4) on-demand import
-		//		for (int i= 0; i < imports.length; i++) {
-		//			IImportDeclaration importDecl= imports[i];
-		//			if (importDecl != null) {
-		//				String name= importDecl.getElementName();
-		//				name= name.substring(0, name.length() - 1); //remove the *
-		//				type= javaProject.findType(name + refTypeName, (IProgressMonitor) null);
-		//				if (type != null)
-		//					return type;
-		//			}
-		//		}
-		//		return null;
 	}
 
 	private static ITypeParameter resolveTypeVariable(IJavaElement baseElement, String typeVariableName) throws JavaModelException {
@@ -601,79 +451,5 @@ public class JavaElementLinks {
 			title = " title='" + title + "'"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return "<a class='header' href='" + uri + "'" + title + ">" + label + "</a>"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-	}
-
-	/**
-	 * Returns the label for a Java element with the flags as defined by
-	 * {@link JavaElementLabels}. Referenced element names in the label (except the
-	 * given element's name) are rendered as header links.
-	 *
-	 * @param element
-	 *            the element to render
-	 * @param flags
-	 *            the rendering flags
-	 * @return the label of the Java element
-	 * @since 3.5
-	 */
-	//	public static String getElementLabel(IJavaElement element, long flags) {
-	//		return getElementLabel(element, flags, false);
-	//	}
-
-	/**
-	 * Returns the label for a Java element with the flags as defined by
-	 * {@link JavaElementLabels}. Referenced element names in the label are rendered
-	 * as header links. If <code>linkAllNames</code> is <code>false</code>, don't
-	 * link the name of the given element
-	 *
-	 * @param element
-	 *            the element to render
-	 * @param flags
-	 *            the rendering flags
-	 * @param linkAllNames
-	 *            if <code>true</code>, link all names; if <code>false</code>, link
-	 *            all names except original element's name
-	 * @return the label of the Java element
-	 * @since 3.6
-	 */
-	//	public static String getElementLabel(IJavaElement element, long flags, boolean linkAllNames) {
-	//		StringBuffer buf = new StringBuffer();
-	//
-	//		if (!Strings.USE_TEXT_PROCESSOR) {
-	//			new JavaElementLinkedLabelComposer(linkAllNames ? null : element, buf).appendElementLabel(element, flags);
-	//			return Strings.markJavaElementLabelLTR(buf.toString());
-	//		} else {
-	//			String label = JavaElementLabels.getElementLabel(element, flags);
-	//			return label.replaceAll("<", "&lt;").replaceAll(">", "&gt;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-	//		}
-	//	}
-
-	/**
-	 * Returns the label for a binding with the flags as defined by
-	 * {@link JavaElementLabels}. Referenced element names in the label are rendered
-	 * as header links.
-	 *
-	 * @param binding
-	 *            the binding to render
-	 * @param element
-	 *            the corresponding Java element, used for javadoc hyperlinks
-	 * @param flags
-	 *            the rendering flags
-	 * @param haveSource
-	 *            true when looking at an ICompilationUnit which enables the use of
-	 *            short type names
-	 * @return the label of the binding
-	 * @since 3.11
-	 */
-	public static String getBindingLabel(IBinding binding, IJavaElement element, long flags, boolean haveSource) {
-		StringBuffer buf = new StringBuffer();
-
-		//		if (!Strings.USE_TEXT_PROCESSOR) {
-		//			new BindingLinkedLabelComposer(element, buf, haveSource).appendBindingLabel(binding, flags);
-		//			return Strings.markJavaElementLabelLTR(buf.toString());
-		//		} else {
-		//			String label = JavaElementLabels.getElementLabel(element, flags);
-		//			return label.replaceAll("<", "&lt;").replaceAll(">", "&gt;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		//		}
-		return "";
 	}
 }

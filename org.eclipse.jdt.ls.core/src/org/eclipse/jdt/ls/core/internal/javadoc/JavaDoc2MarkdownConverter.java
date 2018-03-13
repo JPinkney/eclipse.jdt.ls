@@ -14,7 +14,6 @@ import java.io.Reader;
 
 import com.overzealous.remark.Options;
 import com.overzealous.remark.Options.Tables;
-import com.overzealous.remark.Remark;
 
 /**
  * Converts JavaDoc tags into Markdown equivalent.
@@ -23,7 +22,7 @@ import com.overzealous.remark.Remark;
  */
 public class JavaDoc2MarkdownConverter extends AbstractJavaDocConverter {
 
-	private static Remark remark;
+	private static RemarkExtension remark;
 
 	static {
 		Options options = new Options();
@@ -33,7 +32,7 @@ public class JavaDoc2MarkdownConverter extends AbstractJavaDocConverter {
 		options.autoLinks = true;
 		options.reverseHtmlSmartPunctuation = true;
 		options.preserveRelativeLinks = true;
-		remark = new Remark(options);
+		remark = new RemarkExtension(options);
 	}
 
 	public JavaDoc2MarkdownConverter(Reader reader) {

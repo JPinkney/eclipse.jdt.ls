@@ -2,6 +2,7 @@ package org.sample;
 
 /**
  * This is Bar
+ * {@link Bar}
  */
 public class Bar {
 

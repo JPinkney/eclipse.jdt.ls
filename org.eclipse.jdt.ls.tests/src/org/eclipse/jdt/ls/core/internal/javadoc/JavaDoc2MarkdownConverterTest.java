@@ -11,12 +11,15 @@
 package org.eclipse.jdt.ls.core.internal.javadoc;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.jdt.ls.core.internal.Util;
 import org.junit.Test;
@@ -73,6 +76,21 @@ public class JavaDoc2MarkdownConverterTest extends AbstractJavadocConverterTest 
 			"    \n" +
 			"     *  another unknown tag";
 
+	/**
+	 * {@link IOException}
+	 */
+	static final String RAW_JAVADOC_1 = "{@link IOException}";
+
+	/**
+	 * {@link IOException IOExceptionLabel}
+	 */
+	static final String RAW_JAVADOC_2 = "{@link IOException IOExceptionLabel}";
+
+	/**
+	 * {@link IOException IOExceptionLabel}
+	 */
+	static final String RAW_JAVADOC_3 = "{@link IOException IOExceptionLabel}";
+
 	@Test
 	public void testBoundaries() throws IOException {
 		assertTrue(new JavaDoc2MarkdownConverter("").getAsString().isEmpty());
@@ -95,4 +113,49 @@ public class JavaDoc2MarkdownConverterTest extends AbstractJavadocConverterTest 
 		Reader reader2 = converter.getAsReader();
 		assertNotSame(reader1, reader2);
 	}
+
+	private String[] extractLabelAndURIFromLinkMarkdown(String markdown) {
+		if (markdown == "") {
+			return new String[] { "", "" };
+		}
+
+
+		Pattern pattern = Pattern.compile("\\[(.*?)\\]\\((.*?)\\)");
+		Matcher matcher = pattern.matcher(markdown);
+		if (matcher.find() && matcher.groupCount() >= 2) {
+			return new String[] { matcher.group(1), matcher.group(2) };
+		}
+		return new String[] { "", "" };
+	}
+
+	@Test
+	public void testLinkToHttpIsPresent() throws IOException {
+		JavaDoc2MarkdownConverter converter = new JavaDoc2MarkdownConverter(RAW_JAVADOC_1);
+		String convertedMarkdown = converter.getAsString();
+
+		String[] labelAndURIFromMarkdown = extractLabelAndURIFromLinkMarkdown(convertedMarkdown);
+		assertNotEquals("", labelAndURIFromMarkdown[0]);
+		assertNotEquals("", labelAndURIFromMarkdown[1]);
+	}
+
+	@Test
+	public void testLinkToFileIsPresent() throws IOException {
+		JavaDoc2MarkdownConverter converter = new JavaDoc2MarkdownConverter(RAW_JAVADOC_2);
+		String convertedMarkdown = converter.getAsString();
+
+		String[] labelAndURIFromMarkdown = extractLabelAndURIFromLinkMarkdown(convertedMarkdown);
+		assertNotEquals("", labelAndURIFromMarkdown[0]);
+		assertNotEquals("", labelAndURIFromMarkdown[1]);
+	}
+
+	@Test
+	public void testLinkToJdtFileIsPresent() throws IOException {
+		JavaDoc2MarkdownConverter converter = new JavaDoc2MarkdownConverter(RAW_JAVADOC_3);
+		String convertedMarkdown = converter.getAsString();
+
+		String[] labelAndURIFromMarkdown = extractLabelAndURIFromLinkMarkdown(convertedMarkdown);
+		assertNotEquals("", labelAndURIFromMarkdown[0]);
+		assertNotEquals("", labelAndURIFromMarkdown[1]);
+	}
+
 }

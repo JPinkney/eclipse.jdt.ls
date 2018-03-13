@@ -569,8 +569,6 @@ public class JavadocContentAccess2 {
 					IMethod method= (IMethod) member;
 					String attachedDocInHierarchy= findAttachedDocInHierarchy(method);
 
-					// Prepend "Overrides:" / "Specified by:" reference headers to make clear
-					// that description has been copied from super method.
 					if (attachedDocInHierarchy == null) {
 						return sourceJavadoc;
 					}
@@ -1488,6 +1486,7 @@ public class JavadocContentAccess2 {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void handleInlineTagElement(TagElement node) {
 		String name= node.getTagName();
 
@@ -1968,8 +1967,8 @@ public class JavadocContentAccess2 {
 			if (refTypeName != null) {
 				fBuf.append("<a href=\""); //$NON-NLS-1$
 				try {
-					String uri = JavaElementLinks.createURI(null, fElement, refTypeName, refMemberName, refMethodParamTypes, startPosition);
-					fBuf.append("file://" + uri);
+					String uri = JavaElementLinks.createURI("file", fElement, refTypeName, refMemberName, refMethodParamTypes, startPosition);
+					fBuf.append(uri);
 				} catch (URISyntaxException e) {
 					//JavaPlugin.log(e);
 				}
@@ -2376,13 +2375,13 @@ public class JavadocContentAccess2 {
 	 * @param b
 	 * @return
 	 */
-	public static Reader getMarkdownContentReader(IJavaElement element, boolean attachedJavaDoc) {
+	public static Reader getMarkdownContentReader(IJavaElement element) {
 
 		try {
-			String rawHtml = JavadocContentAccess2.getHTMLContent(element, attachedJavaDoc);
+			String rawHtml = (String) JavadocView.computeInput(element);
 			Reader markdownReader = new JavaDoc2MarkdownConverter(rawHtml).getAsReader();
 			return markdownReader;
-		} catch (IOException | CoreException e) {
+		} catch (IOException e) {
 
 		}
 

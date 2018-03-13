@@ -186,7 +186,7 @@ public class HoverInfoProvider {
 		} else if (element instanceof IMember) {
 			member= (IMember) element;
 		} else if (element instanceof IPackageFragment) {
-			Reader r = JavadocContentAccess2.getMarkdownContentReader(element, true);
+			Reader r = JavadocContentAccess2.getMarkdownContentReader(element);
 			if (r == null) {
 				return null;
 			}
@@ -200,7 +200,7 @@ public class HoverInfoProvider {
 			return null; // no source attachment found
 		}
 
-		Reader r = JavadocContentAccess2.getMarkdownContentReader(member, true);
+		Reader r = JavadocContentAccess2.getMarkdownContentReader(member);
 		if (r == null) {
 			return null;
 		}
