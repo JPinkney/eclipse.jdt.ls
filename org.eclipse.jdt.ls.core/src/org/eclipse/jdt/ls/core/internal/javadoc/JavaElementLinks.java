@@ -141,7 +141,7 @@ public class JavaElementLinks {
 		//ssp.append("/"); // make sure first character is not a / (would be hierarchical URI)
 
 		// replace '[' manually, since URI confuses it for an IPv6 address as per RFC 2732:
-		ssp.append(element.getPath().toString().replace('[', LINK_BRACKET_REPLACEMENT)); // segments[1]
+		ssp.append(element.getHandleIdentifier().toString().replace('[', LINK_BRACKET_REPLACEMENT)); // segments[1]
 
 		if (refTypeName != null) {
 			ssp.append(LINK_SEPARATOR);
@@ -162,7 +162,7 @@ public class JavaElementLinks {
 				}
 			}
 		}
-		
+
 		return new URI(scheme, ssp.toString(), null).toString();
 	}
 
