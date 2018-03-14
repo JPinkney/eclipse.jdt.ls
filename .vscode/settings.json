@@ -1,7 +1,0 @@
-{
-	"java.configuration.updateBuildConfiguration": "automatic",
-	"java.import.exclusions": [
-		"**/org.eclipse.jdt.ls.tests/projects"
-	],
-	"editor.formatOnSave": true
-}
