@@ -16,8 +16,6 @@ import java.net.URISyntaxException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IAnnotation;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -33,8 +31,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 import org.eclipse.jdt.internal.corext.util.SuperTypeHierarchyCache;
-import org.eclipse.jdt.ls.core.internal.JDTUtils;
-import org.eclipse.lsp4j.Location;
 
 /**
  * Links inside Javadoc hovers and Javadoc view.
@@ -145,7 +141,7 @@ public class JavaElementLinks {
 		//ssp.append("/"); // make sure first character is not a / (would be hierarchical URI)
 
 		// replace '[' manually, since URI confuses it for an IPv6 address as per RFC 2732:
-		ssp.append(element.getHandleIdentifier().toString().replace('[', LINK_BRACKET_REPLACEMENT)); // segments[1]
+		ssp.append(element.getPath().toString().replace('[', LINK_BRACKET_REPLACEMENT)); // segments[1]
 
 		if (refTypeName != null) {
 			ssp.append(LINK_SEPARATOR);
@@ -166,44 +162,7 @@ public class JavaElementLinks {
 				}
 			}
 		}
-
-		URI uri = new URI("eclipse-javadoc", ssp.toString(), null);
-
-		IJavaElement e = parseURI(uri);
-
-		try {
-			Location loc = JDTUtils.toLocation(e);
-			String urlStart = loc.getUri();
-		} catch (Exception z) {
-
-		}
-
-		try {
-			String urlStart = "";
-			ICompilationUnit compilationUnit = (ICompilationUnit) element.getAncestor(IJavaElement.COMPILATION_UNIT);
-			IClassFile cf = (IClassFile) element.getAncestor(IJavaElement.CLASS_FILE);
-			if (compilationUnit != null || (cf != null && cf.getSourceRange() != null)) {
-				Location loc = JDTUtils.toLocation(element);
-
-				urlStart = loc.getUri();
-				//return uriTest;
-
-			}
-			if (element instanceof IMember && ((IMember) element).getClassFile() != null) {
-				Location loc = JDTUtils.toLocation(((IMember) element).getClassFile());
-
-				urlStart = loc.getUri();
-				//return uriTest;
-			}
-			urlStart = urlStart.substring(0, urlStart.indexOf("?="));
-			urlStart = urlStart + "?" + ssp.toString();
-			return urlStart;
-		} catch (Exception z) {
-
-		}
-
-
-
+		
 		return new URI(scheme, ssp.toString(), null).toString();
 	}
 
