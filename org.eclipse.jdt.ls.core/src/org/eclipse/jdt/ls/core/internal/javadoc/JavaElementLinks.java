@@ -31,6 +31,8 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 import org.eclipse.jdt.internal.corext.util.SuperTypeHierarchyCache;
+import org.eclipse.jdt.ls.core.internal.JDTUtils;
+import org.eclipse.lsp4j.Location;
 
 /**
  * Links inside Javadoc hovers and Javadoc view.
@@ -163,9 +165,34 @@ public class JavaElementLinks {
 			}
 		}
 
-		return new URI(scheme, ssp.toString(), null).toString();
+		//☂=salut/\/usr\/java\/jdk1.8.0_141\/jre\/lib\/rt.jar<java.lang(System.class☃System^out☂java.io.PrintStream☂println☂
+		//☂=salut/\/usr\/java\/jdk1.8.0_141\/jre\/lib\/rt.jar<java.lang(System.class☃System^out☂java.io.PrintStream☂println☂
+
+		URI u = new URI("eclipse-javadoc", ssp.toString(), null);
+
+		IJavaElement linkTarget = parseURI(u);
+
+		try {
+			Location l = JDTUtils.toLocation(linkTarget);
+			return l.getUri();
+		} catch (JavaModelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		//if (linkTarget == null) {
+			return "";
+		//}
+
+
 	}
 
+	/**
+	 * {@link String}
+	 *
+	 * @param uri
+	 * @return
+	 */
 	public static IJavaElement parseURI(URI uri) {
 		String ssp = uri.getSchemeSpecificPart();
 		String[] segments = ssp.split(String.valueOf(LINK_SEPARATOR), -1);
