@@ -174,7 +174,7 @@ public class JavaElementLinks {
 
 		try {
 			Location l = JDTUtils.toLocation(linkTarget);
-			return l.getUri();
+			return l.getUri() + "#" + (l.getRange().getStart().getLine() + 1);
 		} catch (JavaModelException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
