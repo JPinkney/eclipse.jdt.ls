@@ -2402,10 +2402,10 @@ public class JavadocContentAccess2 {
 	public static Reader getMarkdownContentReader(IJavaElement element) {
 
 		try {
-			String rawHtml = (String) JavadocView.computeInput(element);
+			String rawHtml = JavadocContentAccess2.getHTMLContent(element, true);
 			Reader markdownReader = new JavaDoc2MarkdownConverter(rawHtml).getAsReader();
 			return markdownReader;
-		} catch (IOException e) {
+		} catch (IOException | CoreException e) {
 
 		}
 

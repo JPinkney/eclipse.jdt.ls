@@ -165,34 +165,20 @@ public class JavaElementLinks {
 			}
 		}
 
-		//☂=salut/\/usr\/java\/jdk1.8.0_141\/jre\/lib\/rt.jar<java.lang(System.class☃System^out☂java.io.PrintStream☂println☂
-		//☂=salut/\/usr\/java\/jdk1.8.0_141\/jre\/lib\/rt.jar<java.lang(System.class☃System^out☂java.io.PrintStream☂println☂
+		URI javadocURI = new URI("eclipse-javadoc", ssp.toString(), null);
 
-		URI u = new URI("eclipse-javadoc", ssp.toString(), null);
-
-		IJavaElement linkTarget = parseURI(u);
+		IJavaElement linkTarget = parseURI(javadocURI);
 
 		try {
-			Location l = JDTUtils.toLocation(linkTarget);
-			return l.getUri() + "#" + (l.getRange().getStart().getLine() + 1);
+			Location locationToElement = JDTUtils.toLocation(linkTarget);
+			return locationToElement.getUri() + "#" + (locationToElement.getRange().getStart().getLine() + 1);
 		} catch (JavaModelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
 		}
 
-		//if (linkTarget == null) {
-			return "";
-		//}
-
-
+		return "";
 	}
 
-	/**
-	 * {@link String}
-	 *
-	 * @param uri
-	 * @return
-	 */
 	public static IJavaElement parseURI(URI uri) {
 		String ssp = uri.getSchemeSpecificPart();
 		String[] segments = ssp.split(String.valueOf(LINK_SEPARATOR), -1);
