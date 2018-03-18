@@ -13,6 +13,7 @@ package org.eclipse.jdt.ls.core.internal.javadoc;
 import java.io.Reader;
 import java.lang.reflect.Field;
 
+import org.eclipse.jdt.ls.core.internal.JavaLanguageServerPlugin;
 import org.jsoup.safety.Cleaner;
 import org.jsoup.safety.Whitelist;
 
@@ -53,7 +54,7 @@ public class JavaDoc2MarkdownConverter extends AbstractJavaDocConverter {
 			w.addProtocols("a", "href", "file", "jdt");
 			whitelistField.set(whitelistField.get(c), w);
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-
+			JavaLanguageServerPlugin.logException("Unable to modify jsoup to include file and jdt protocols", e);
 		}
 	}
 
